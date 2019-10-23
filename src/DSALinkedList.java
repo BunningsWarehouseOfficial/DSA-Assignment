@@ -52,6 +52,7 @@ public class DSALinkedList implements Iterable, Serializable
         }
     }
 
+    //iterator implementation
     private class DSALinkedListIterator implements Iterator
     {
         private DSAListNode iterNext;
@@ -61,11 +62,7 @@ public class DSALinkedList implements Iterable, Serializable
             iterNext = theList.head;
         }
 
-        //iterator interface implementation
-        public boolean hasNext()
-        {
-            return (iterNext != null);
-        }
+        public boolean hasNext() { return (iterNext != null); }
 
         public Object next()
         {
@@ -87,12 +84,13 @@ public class DSALinkedList implements Iterable, Serializable
             throw new UnsupportedOperationException("Error: Not supported");
         }
     }
-
     public Iterator iterator()
     {
         return new DSALinkedListIterator(this);
     }
-    
+
+    // ================================================================== //
+
     public DSALinkedList()
     {
         head = null;

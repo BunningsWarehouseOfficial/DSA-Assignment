@@ -26,7 +26,7 @@ public class SocialSim
             }
             else if (args.length == 0)
             { //No command line flags
-                usageInformation();
+                usageInfo();
             }
             else
             { //Checking for > 1 command line arguments
@@ -45,6 +45,7 @@ public class SocialSim
     private static void menu()
     {
         Scanner sc = new Scanner(System.in);
+        Network network = new Network();
         String filename;
         int cmd = -1;
 
@@ -103,7 +104,7 @@ public class SocialSim
 
   /*Display general usage information to user about running program, including
     a description of the two modes and their flags*/
-    private static void usageInformation()
+    private static void usageInfo()
     {
         //TODO user information print statements
     }

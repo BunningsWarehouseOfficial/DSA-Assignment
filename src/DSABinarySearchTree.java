@@ -1,11 +1,12 @@
 import java.util.*;
 import java.io.*;
 
-public class DSABinarySearchTree implements Serializable
+//TODO Does it need serializable?
+public class DSABinarySearchTree implements Serializable, Iterable
 {
     private DSATreeNode root;
 
-    public class DSATreeNode implements Serializable
+    private class DSATreeNode implements Serializable
     {
         private String key;
         private Object value;
@@ -26,22 +27,10 @@ public class DSABinarySearchTree implements Serializable
         }
 
         //accessors
-        public String getKey()
-        {
-            return key;
-        }
-        public Object getValue()
-        { 
-            return value;
-        }
-        public DSATreeNode getLeft()
-        {
-            return leftChild;
-        }
-        public DSATreeNode getRight()
-        {
-            return rightChild;
-        }
+        public String getKey() { return key; }
+        public Object getValue() { return value; }
+        public DSATreeNode getLeft() { return leftChild; }
+        public DSATreeNode getRight() { return rightChild; }
 
         //mutators
         public void setLeft(DSATreeNode newLeft)
@@ -54,6 +43,46 @@ public class DSABinarySearchTree implements Serializable
         }
     }
 
+    private class DSABinarySearchTreeIterator implements Iterator
+    {
+        private DSATreeNode iterNext;
+        private DSAQueue inOrder;
+
+        public DSABinarySearchTreeIterator(DSABinarySearchTree theTree)
+        {
+            inOrder = export();
+            iterNext = (DSATreeNode)inOrder.dequeue();
+        }
+
+        public boolean hasNext() { return (iterNext != null); }
+
+        public Object next()
+        {
+            Object value;
+            if (iterNext == null)
+            {
+                value = null;
+            }
+            else
+            {
+                value = iterNext.getValue();
+                iterNext = (DSATreeNode)inOrder.dequeue();
+            }
+            return value;
+        }
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException("Error: Not supported");
+        }
+    }
+    public Iterator iterator()
+    {
+        return new DSABinarySearchTreeIterator(this);
+    }
+
+    // ================================================================== //
+
     public DSABinarySearchTree()
     {
         root = null;
@@ -63,25 +92,19 @@ public class DSABinarySearchTree implements Serializable
     public Object find(String key)
     {
         Object value = null;
-        try
-        {
+//        try //TODO remove if not needed (probably won't be)
+//        {
             value = findRec(key, root);
-        }
-        catch (NoSuchElementException e)
-        {
-            System.out.println(e.getMessage());
-        }
+//        }
+//        catch (NoSuchElementException e)
+//        {
+//            System.out.println(e.getMessage());
+//        }
         return value;
     }
     public void insert(String key, Object value)
     {
         root = insertRec(key, value, root);
-    }
-    
-    public DSAQueue createQueue()
-    {
-        DSAQueue queue = new DSAQueue();
-        return queue;
     }
 
     public DSAQueue display()
@@ -137,15 +160,11 @@ public class DSABinarySearchTree implements Serializable
         } 
     }
 
-    /*public DSABinarySearchTree export()
-    {
-        
-    }*/
-   
-    public String balance()
-    {
-        //not implemented
-        return "";
+    public DSAQueue export()
+    { //Returning the in-order traversal of the tree as a queue
+        DSAQueue infix = new DSAQueue();
+        infix = inOrderRec(root, infix);
+        return infix;
     }
 
     public int height()
@@ -177,7 +196,7 @@ public class DSABinarySearchTree implements Serializable
         }
         else if (key.equals(currNode.getKey())) // ==
         {
-            updateNode = deleteNode(key, currNode);
+            updateNode = deleteNode(currNode);
         }
         else if (key.compareTo(currNode.getKey()) < 0) // < 0
         {
@@ -190,10 +209,9 @@ public class DSABinarySearchTree implements Serializable
         return updateNode;
     }
  
-    private DSATreeNode deleteNode(String key, DSATreeNode delNode)
+    private DSATreeNode deleteNode(DSATreeNode delNode)
     {
         DSATreeNode updateNode;
-        updateNode = null;
 
         if (delNode.getLeft() == null && delNode.getRight() == null)
         {
@@ -260,7 +278,7 @@ public class DSABinarySearchTree implements Serializable
     }
 
     private void printTree(DSAQueue queue)
-    {
+    { //TODO Is this needed?
         boolean empty = false;
 
         System.out.println("\nKEY | VALUE\n----+------");
