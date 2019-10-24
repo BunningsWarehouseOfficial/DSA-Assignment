@@ -32,22 +32,22 @@ public class DSAGraphT
 
         public String toString()
         {
-            DSAGraphVertex v;
-            String s = ""; //TODO fix for BST
+            String s, output;
+            output = "";
 
-            //Iterate through vertices list
+            //Iterate through list of edge vertices
             for (Object o : links)
             {
-                v = (DSAGraphVertex)o;
-                s += v.getLabel() + " ";
+                s = ((DSAGraphVertex)o).getLabel();
+                output += " " + s;
             }
-            return "";
+            return output;
         }
 
         //MUTATORS
         public void addEdge(DSAGraphVertex vertex)
         { //Adding vertex to list of links
-            links.insert(vertex.getLabel(), vertex.getValue());
+            links.insert(vertex.getLabel(), vertex);
         }
         public void setVisited()
         {
@@ -78,7 +78,8 @@ public class DSAGraphT
     {
         if (!hasVertex(label)) //Checking if label exists already
         {
-            vertices.insert(label, value);
+            DSAGraphVertex vertex = new DSAGraphVertex(label, value);
+            vertices.insert(label, vertex);
             vertexCount++;
         }
         else
@@ -90,32 +91,26 @@ public class DSAGraphT
     { //Adding a directed edge
         if (!source.equals(sink) && hasVertex(source) && hasVertex(sink))
         {
-            DSAGraphVertex src, sk;
-            src = (DSAGraphVertex)vertices.find(source);
-            sk = (DSAGraphVertex)vertices.find(sink);
+            DSAGraphVertex v, src, sk;
+            DSABinarySearchTree links;
+
+            src = getVertex(source);
+            sk = getVertex(sink);
+
+            /*for (Object o1 : vertices)
+            {
+                v = (DSAGraphVertex)o1;
+                if (v.getLabel().equals(source))
+                { //Retrieving the source vertex
+                    src = v;
+                }
+                else if (v.getLabel().equals(sink))
+                { //Retrieving the sink vertex
+                    sk = v;
+                }
+            }*/
 
             src.addEdge(sk);
-
-//            DSAGraphVertex i, v1, v2;
-//            v1 = getVertex(label1); //TODO remove if unnecessary
-//            v2 = getVertex(label2);
-//
-//            //Iterate through vertices list
-//            for (Object o : vertices)
-//            {
-//                i = (DSAGraphVertex)o;
-//
-//                //Check for label 1
-//                if (i.getLabel().equals(label1))
-//                {
-//                    i.addEdge(v2); //Add opposing label as a link
-//                }
-//                //Check for label 2
-//                else if (i.getLabel().equals(label2))
-//                {
-//                    i.addEdge(v1); //Add opposing label as a link
-//                }
-//            }
             edgeCount++;
         }
         else
@@ -132,7 +127,6 @@ public class DSAGraphT
     public boolean hasVertex(String label)
     {
         boolean hasVertex;
-//        DSAGraphVertex v;
         try
         {
             vertices.find(label);
@@ -142,15 +136,6 @@ public class DSAGraphT
         {
             hasVertex = false;
         }
-        //Iterate through vertices list
-//        for (Object o : vertices) //TODO remove if unnecessary
-//        {
-//            v = (DSAGraphVertex)o;
-//            if (v.getLabel().equals(label)) //Check for label
-//            {
-//                hasVertex = true;
-//            }
-//        }
         return hasVertex;
     }
     public DSAGraphVertex getVertex(String label)
@@ -166,40 +151,51 @@ public class DSAGraphT
         {
             throw new IllegalArgumentException("Error: Could not find vertex");
         }
-
-        //Iterate through vertices list
-//        for (Object o : vertices) //TODO remove if unnecessary
-//        {
-//            v = (DSAGraphVertex)o;
-//            if (v.getLabel().equals(label)) //Check for label
-//            {
-//                retVertex = v;
-//            }
-//        }
-//
-//        if (retVertex == null)
-//        {
-//            throw new IllegalArgumentException("Error: Could not find vertex");
-//        }
         return retVertex;
     }
-    /*public DSABinarySearchTree getAdjacent(String label)
+    public DSABinarySearchTree getAdjacent(String label)
     {
-        // //
-    }*/
+        return getVertex(label).getAdjacent();
+    }
     public boolean isAdjacent(String label1, String label2)
     {
-        // //
-        return true;
+        boolean isAdjacent = false;
+        DSABinarySearchTree links;
+        DSAGraphVertex v;
+
+        //Graph is directional, thus need to check both lists for opposing label
+        links = getAdjacent(label1); //Retrieve the links from label 1 vertex
+        for (Object o : links)
+        {
+            v = (DSAGraphVertex)o;
+            if (v.getLabel().equals(label2))
+            {
+                isAdjacent = true;
+            }
+        }
+        links = getAdjacent(label2); //Retrive the links from label 2 vertex
+        for (Object o : links)
+        {
+            v = (DSAGraphVertex)o;
+            if (v.getLabel().equals(label1))
+            {
+                isAdjacent = true;
+            }
+        }
+        return isAdjacent;
     }
 
     //DISPLAY
     public void displayAsList()
     {
-        // //
-    }
-    public void displayAsMatrix()
-    {
-        // //
+        String s;
+        DSAGraphVertex v;
+
+        for (Object o : vertices)
+        {
+            v = (DSAGraphVertex)o;
+            System.out.print(v.getLabel() + ":"); //Print label
+            System.out.println(v.toString()); //Print list of edges
+        }
     }
 }

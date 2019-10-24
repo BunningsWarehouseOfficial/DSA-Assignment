@@ -21,7 +21,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
                                                    "null");
             }
             key = inKey;
-            value = inVal.toString();
+            value = inVal;
             rightChild = null;
             leftChild = null;
         }
@@ -48,10 +48,17 @@ public class DSABinarySearchTree implements Serializable, Iterable
         private DSATreeNode iterNext;
         private DSAQueue inOrder;
 
-        public DSABinarySearchTreeIterator(DSABinarySearchTree theTree)
+        public DSABinarySearchTreeIterator()
         {
-            inOrder = export();
-            iterNext = (DSATreeNode)inOrder.dequeue();
+            inOrder = infixNodeQueue();
+            try
+            {
+                iterNext = (DSATreeNode) inOrder.dequeue();
+            }
+            catch (IllegalArgumentException e)
+            { //Catching exception caused by empty linked list
+                iterNext = null;
+            }
         }
 
         public boolean hasNext() { return (iterNext != null); }
@@ -66,7 +73,14 @@ public class DSABinarySearchTree implements Serializable, Iterable
             else
             {
                 value = iterNext.getValue();
-                iterNext = (DSATreeNode)inOrder.dequeue();
+                try
+                {
+                    iterNext = (DSATreeNode) inOrder.dequeue();
+                }
+                catch (IllegalArgumentException e)
+                { //Catching exception caused by empty linked list
+                    iterNext = null;
+                }
             }
             return value;
         }
@@ -78,7 +92,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
     }
     public Iterator iterator()
     {
-        return new DSABinarySearchTreeIterator(this);
+        return new DSABinarySearchTreeIterator();
     }
 
     // ================================================================== //
@@ -92,14 +106,8 @@ public class DSABinarySearchTree implements Serializable, Iterable
     public Object find(String key)
     {
         Object value = null;
-//        try //TODO remove if not needed (probably won't be)
-//        {
-            value = findRec(key, root);
-//        }
-//        catch (NoSuchElementException e)
-//        {
-//            System.out.println(e.getMessage());
-//        }
+        value = findRec(key, root);
+
         return value;
     }
     public void insert(String key, Object value)
@@ -160,11 +168,27 @@ public class DSABinarySearchTree implements Serializable, Iterable
         } 
     }
 
-    public DSAQueue export()
-    { //Returning the in-order traversal of the tree as a queue
-        DSAQueue infix = new DSAQueue();
+    public DSAQueue infixNodeQueue()
+    { //Returning the in-order traversal of the tree as a queue for iterator
+        DSAQueue infix, export;
+        int upper;
+        infix = new DSAQueue();
+        export = new DSAQueue();
+        String key;
+        Object value;
+
+        //Retrieve queue of keys and values as Strings
         infix = inOrderRec(root, infix);
-        return infix;
+        upper = infix.getCount() / 2;
+        for (int ii = 0; ii < upper; ii++)
+        { //Create queue of nodes for iterator
+             DSATreeNode node;
+             key = (String)infix.dequeue();
+             value = infix.dequeue();
+             node = new DSATreeNode(key, value); //Creating node
+             export.enqueue(node); //Queue node
+        }
+        return export;
     }
 
     public int height()
@@ -188,7 +212,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
     {
         DSATreeNode updateNode;
         updateNode = currNode;
-        
+
         if (currNode == null)
         {
             throw new NoSuchElementException("Error: Key " + key + " not " +
@@ -198,7 +222,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
         {
             updateNode = deleteNode(currNode);
         }
-        else if (key.compareTo(currNode.getKey()) < 0) // < 0
+        else if (key.compareToIgnoreCase(currNode.getKey()) < 0) // < 0
         {
             currNode.setLeft(deleteRec(key, currNode.getLeft()));
         }
@@ -345,7 +369,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
         {
             value = currNode.getValue();
         }
-        else if (key.compareTo(currNode.getKey()) < 0) // < 0
+        else if (key.compareToIgnoreCase(currNode.getKey()) < 0) // < 0
         {
             value = findRec(key, currNode.getLeft());
         }
@@ -372,7 +396,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
             throw new IllegalArgumentException("Error: Key " + key +
                                                " already exists");
         }
-        else if (key.compareTo(currNode.getKey()) < 0) // < 0
+        else if (key.compareToIgnoreCase(currNode.getKey()) < 0) // < 0
         {
             currNode.setLeft(insertRec(key, value, currNode.getLeft()));
         }

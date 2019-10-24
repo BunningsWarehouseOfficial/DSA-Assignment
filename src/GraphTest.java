@@ -1,9 +1,8 @@
-import java.util.*;
 public class GraphTest
 {
     public static void main(String[] args)
     {
-        DSAGraph g = new DSAGraph();
+        DSAGraphT g = new DSAGraphT();
 
         //Adding Vertices
         g.addVertex("A", 1);
@@ -23,7 +22,11 @@ public class GraphTest
         }
 
         //Adding Edges
-        g.addEdge("A","B");
-        //g.getAdjacent
+        g.addEdge("A", "E");
+        g.addEdge("A", "B");
+        g.addEdge("Z", "A");
+        System.out.println("(Is adjacent) true = " + g.isAdjacent("A", "Z"));
+        System.out.println("(Is adjacent) false = " + g.isAdjacent("Z", "B"));
+        g.displayAsList();
     }
 }
