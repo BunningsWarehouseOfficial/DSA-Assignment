@@ -56,7 +56,8 @@ public class SocialSim
                 System.out.println("\n[1] Load Network\n[2] Set Probabilities" +
                     "\n[3] Node Operations\n[4] Edge Operations\n[5] New Post" +
                     "\n[6] Display Network\n[7] Display Statistics" +
-                    "\n[8] Update (Run Timestep)\n[9] Save Network\n[0] Exit");
+                    "\n[8] Update (Run Timestep)\n[9] Save Network\n[0] " +
+                    "Exit\n");
                 cmd = sc.nextInt(); //TODO check this doesn't break program
                 switch (cmd)
                 {
@@ -64,7 +65,7 @@ public class SocialSim
                         System.out.print("Filename: ");
                         sc.nextLine();
                         filename = sc.next();
-                        /*"""tree""" = loadNetwork(filename);*/
+                        network = IO.loadNetwork(filename);
                         break;
                     case 2:
 
@@ -79,7 +80,7 @@ public class SocialSim
 
                         break;
                     case 6:
-
+                        network.displayAsList();
                         break;
                     case 7:
 
@@ -91,13 +92,13 @@ public class SocialSim
                         System.out.print("Filename: ");
                         sc.nextLine();
                         filename = sc.next();
-                        /*"""tree""" = loadNetwork(filename);*/
+                        IO.saveNetwork(filename, network);
                         break;
                 }
             }
             catch (IllegalArgumentException e1)
             {
-                System.out.println("Error: " + e1.getMessage());
+                System.out.println(e1.getMessage());
             }
         } while (cmd != 0);
     }

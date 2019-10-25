@@ -44,13 +44,20 @@ public class DSAGraphT
         public String toString()
         {
             String s, output;
-            output = "";
+            output = " ";
 
             //Iterate through list of edge vertices
             for (Object o : links)
             {
                 s = ((DSAGraphVertex)o).getLabel();
-                output += " " + s;
+                if (output.equals(" "))
+                {
+                    output += s;
+                }
+                else
+                {
+                    output += ", " + s;
+                }
             }
             return output;
         }
