@@ -75,7 +75,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
                 value = iterNext.getValue();
                 try
                 {
-                    iterNext = (DSATreeNode) inOrder.dequeue();
+                    iterNext = (DSATreeNode)inOrder.dequeue();
                 }
                 catch (IllegalArgumentException e)
                 { //Catching exception caused by empty linked list
@@ -113,6 +113,10 @@ public class DSABinarySearchTree implements Serializable, Iterable
     public void insert(String key, Object value)
     {
         root = insertRec(key, value, root);
+    }
+    public void delete(String key)
+    {
+        root = deleteRec(key, root);
     }
 
     public DSAQueue display()
@@ -156,18 +160,6 @@ public class DSABinarySearchTree implements Serializable, Iterable
         return queue; //returning copied queue for saving tree
     }
     
-    public void delete(String key)
-    {
-        try
-        {
-            root = deleteRec(key, root);
-        }
-        catch (NoSuchElementException e)
-        {
-            System.out.println(e.getMessage());
-        } 
-    }
-
     public DSAQueue infixNodeQueue()
     { //Returning the in-order traversal of the tree as a queue for iterator
         DSAQueue infix, export;
@@ -302,9 +294,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
     }
 
     private void printTree(DSAQueue queue)
-    { //TODO Is this needed?
-        boolean empty = false;
-
+    {
         System.out.println("\nKEY | VALUE\n----+------");
         try
         {

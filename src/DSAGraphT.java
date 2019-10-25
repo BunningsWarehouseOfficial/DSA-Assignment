@@ -1,10 +1,7 @@
 import java.util.NoSuchElementException;
 
-//TODO self-cite here
-//TODO make the graph directional
+//TODO self-cite here (note that it is directed and simple (ie. not multigraph))
 
-//TODO Remove vertex (removes all edges) if needed
-//TODO Remove edge (called by remove vertex) if needed
 //TODO getDegree if needed
 //TODO getHighestDegree if needed
 public class DSAGraphT
@@ -29,6 +26,20 @@ public class DSAGraphT
         public Object getValue() { return value; }
         public DSABinarySearchTree getAdjacent() { return links; }
         public boolean getVisited() { return visited; }
+        public boolean hasEdge(String label)
+        {
+            boolean hasEdge;
+            try
+            {
+                links.find(label);
+                hasEdge = true;
+            }
+            catch (NoSuchElementException e)
+            {
+                hasEdge = false;
+            }
+            return hasEdge;
+        }
 
         public String toString()
         {
@@ -46,8 +57,12 @@ public class DSAGraphT
 
         //MUTATORS
         public void addEdge(DSAGraphVertex vertex)
-        { //Adding vertex to list of links
+        {
             links.insert(vertex.getLabel(), vertex);
+        }
+        public void removeEdge(String label)
+        {
+            links.delete(label);
         }
         public void setVisited()
         {
@@ -91,14 +106,59 @@ public class DSAGraphT
     { //Adding a directed edge
         if (!source.equals(sink) && hasVertex(source) && hasVertex(sink))
         {
-            DSAGraphVertex v, src, sk;
-            DSABinarySearchTree links;
-
+            DSAGraphVertex src, sk;
             src = getVertex(source);
             sk = getVertex(sink);
 
             src.addEdge(sk);
             edgeCount++;
+        }
+        else if (source.equals(sink))
+        {
+            throw new IllegalArgumentException("Error: Can not add an edge " +
+                                               "between the same vertex");
+        }
+        else
+        {
+            throw new IllegalArgumentException("Error: One or both of the " +
+                                               "vertices do not exist");
+        }
+    }
+    public void removeVertex(String label)
+    { //Remove vertex AND all occurrences of vertex in any edges
+        DSAGraphVertex v, findValue;
+        DSABinarySearchTree links;
+
+        vertices.delete(label);
+        for (Object o : vertices)
+        {
+            v = (DSAGraphVertex)o;
+            //links = v.getAdjacent();
+            //Checking if vertex to be removed is in v's links/edges tree
+              //hasEdge = v.hasEdge(label);
+            //findValue = (DSAGraphVertex)links.find(label);
+            if (v.hasEdge(label))
+            {
+                v.removeEdge(label);
+            }
+        }
+        vertexCount--;
+    }
+    public void removeEdge(String source, String sink)
+    { //Removing a directed edge
+        if (!source.equals(sink) && hasVertex(source) && hasVertex(sink))
+        {
+            DSAGraphVertex src, sk;
+            src = getVertex(source);
+            sk = getVertex(sink);
+
+            src.removeEdge(sink);
+            edgeCount--;
+        }
+        else if (source.equals(sink))
+        {
+            throw new IllegalArgumentException("Error: Can not add an edge " +
+                                               "between the same vertex");
         }
         else
         {
