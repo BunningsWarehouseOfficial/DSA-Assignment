@@ -97,19 +97,6 @@ public class DSAGraphT
             src = getVertex(source);
             sk = getVertex(sink);
 
-            /*for (Object o1 : vertices)
-            {
-                v = (DSAGraphVertex)o1;
-                if (v.getLabel().equals(source))
-                { //Retrieving the source vertex
-                    src = v;
-                }
-                else if (v.getLabel().equals(sink))
-                { //Retrieving the sink vertex
-                    sk = v;
-                }
-            }*/
-
             src.addEdge(sk);
             edgeCount++;
         }
