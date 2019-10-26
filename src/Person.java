@@ -5,6 +5,7 @@ public class Person
     private int nFollowing;
     private int nPosts;
     private int nLikes;
+    private Post justShared; //For posts that have just been posted or liked
 
     //CONSTRUCTOR
     public Person(String newName)
@@ -12,6 +13,11 @@ public class Person
         if (newName != null)
         {
             name = newName;
+            nFollowers = 0;
+            nFollowing = 0;
+            nPosts = 0;
+            nLikes = 0;
+            justShared = null;
         }
         else
         {
@@ -68,28 +74,12 @@ public class Person
             throw new IllegalArgumentException("Error: Value must be positive");
         }
     }
-    public void setNPosts(int newN)
+    public void setJustShared(Post inPost)
     {
-        if (newN >= 0)
-        {
-            nPosts = newN;
-        }
-        else
-        {
-            throw new IllegalArgumentException("Error: Value must be positive");
-        }
+        justShared = inPost;
     }
-    public void setNLikes(int newN)
-    {
-        if (newN >= 0)
-        {
-            nLikes = newN;
-        }
-        else
-        {
-            throw new IllegalArgumentException("Error: Value must be positive");
-        }
-    }
+    public void addPost() { nPosts++; }
+    public void addLike() { nLikes++; }
 
  /* Update the number of followers, in case any followers were removed from
     the network */
@@ -104,5 +94,25 @@ public class Person
             }
         }
         setNFollowers(followers);
+    }
+
+    public void viewPost(Post viewedPost, Person poster, Network network)
+    {
+        double clickbait = viewedPost.getClickbait();
+        if (Math.random() <= network.getProbLike() * clickbait)
+        { //Like the post (hence 'share' it also)
+            poster.addLike();
+            viewedPost.addLike();
+            justShared = viewedPost;
+
+            if (!network.hasEdge(poster.getName(), name))
+            {
+                if (Math.random() <= network.getProbFollow())
+                { //If not already following, follow the poster
+                    network.addEdge(poster.getName(), name);
+                }
+            }
+        }
+        viewedPost.addSeen(name);
     }
 }

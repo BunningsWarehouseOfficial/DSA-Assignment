@@ -224,6 +224,16 @@ public class DSAGraphT
         }
         return hasVertex;
     }
+    public boolean hasEdge(String source, String sink)
+    {
+        boolean hasEdge = false;
+        if (!source.equals(sink) && hasVertex(source) && hasVertex(sink))
+        {
+            DSAGraphVertex src = getVertex(source);
+            hasEdge = src.hasEdge(sink);
+        }
+        return hasEdge;
+    }
     public DSAGraphVertex getVertex(String label)
     {
         DSAGraphVertex retVertex;
@@ -263,7 +273,7 @@ public class DSAGraphT
                 isAdjacent = true;
             }
         }
-        links = getAdjacent(label2); //Retrive the links from label 2 vertex
+        links = getAdjacent(label2); //Retrieve the links from label 2 vertex
         for (Object o : links)
         {
             v = (DSAGraphVertex)o;
