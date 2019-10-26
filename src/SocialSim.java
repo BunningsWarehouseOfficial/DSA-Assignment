@@ -47,7 +47,6 @@ public class SocialSim
         Scanner sc = new Scanner(System.in);
         Network network = new Network();
         String filename;
-        double probLike, probFollow;
         int cmd = -1;
 
         do
@@ -59,28 +58,19 @@ public class SocialSim
                     "\n[6] Display Network\n[7] Display Statistics" +
                     "\n[8] Update (Run Timestep)\n[9] Save Network\n[0] " +
                     "Exit\n");
-                cmd = sc.nextInt();
+                cmd = Integer.parseInt(sc.nextLine());
                 switch (cmd)
                 {
                     case 1: //Load
                         System.out.print("Filename: ");
-                        sc.nextLine();
-                        filename = sc.next();
+                        filename = sc.nextLine();
                         network = IO.loadNetwork(filename);
                         break;
                     case 2: //Probabilities
-                        System.out.println("Like Probability: ");
-                        sc.nextLine();
-                        probLike = sc.nextDouble();
-                        network.setProbLike(probLike);
-
-                        System.out.println("Follow Probability: ");
-                        sc.nextLine();
-                        probFollow = sc.nextDouble();
-                        network.setProbLike(probFollow);
+                        setProbabilities(network);
                         break;
                     case 3: //Node Ops
-                        network = nodeOperations(network);
+                        nodeOperations(network);
                         break;
                     case 4: //Edge Ops
 
@@ -92,18 +82,14 @@ public class SocialSim
                         network.displayAsList();
                         break;
                     case 7: //Display Stats
-                        //temp
-                        System.out.println("Nodes: " +
-                                           network.getVertexCount());
-                        System.out.println("Edges: " + network.getEdgeCount());
+                        displayStats(network);
                         break;
                     case 8: //Run Timestep
 
                         break;
                     case 9: //Save
                         System.out.print("Filename: ");
-                        sc.nextLine();
-                        filename = sc.next();
+                        filename = sc.nextLine();
                         IO.saveNetwork(filename, network);
                         break;
                     default:
@@ -116,22 +102,41 @@ public class SocialSim
             }
             catch (IllegalArgumentException e1)
             {
-                System.out.println(e1.getMessage());
+                System.out.println("Error: Invalid input");
+            }
+            catch (InputMismatchException e2)
+            {
+                System.out.println("Error: Invalid input");
+                sc.nextLine();
             }
         } while (cmd != 0);
     }
 
+ /* Setting the probabilities in interactive mode */
+    private static void setProbabilities(Network network)
+    {
+        Scanner sc = new Scanner(System.in);
+        double probLike, probFollow;
+
+        System.out.print("Prob. Like: ");
+        probLike = Double.parseDouble(sc.nextLine());
+        network.setProbLike(probLike);
+
+        System.out.print("Prob. Follow: ");
+        probFollow = Double.parseDouble(sc.nextLine());
+        network.setProbFollow(probFollow);
+    }
+
  /* Sub-menu for node operations */
-    private static Network nodeOperations(Network network)
+    private static void nodeOperations(Network network)
     {
         Scanner sc = new Scanner(System.in);
         String name = "";
         int cmd;
 
         System.out.println("[1] Find Node\n[2] Insert Node\n[3] Delete " +
-            "Node\n[0] Back\n");
-        cmd = sc.nextInt();
-        sc.nextLine();
+                "Node\n[0] Back\n");
+        cmd = Integer.parseInt(sc.nextLine());
         try
         {
             switch (cmd)
@@ -147,14 +152,14 @@ public class SocialSim
                     Person newNode = new Person(name);
                     network.addVertex(name, newNode);
                     System.out.println("'" + name + "' was successfully added" +
-                        " to the network");
+                            " to the network");
                     break;
                 case 3:
                     System.out.print("Node/Person Name: ");
                     name = sc.nextLine().trim(); //Remove excess whitespace
                     network.removeVertex(name);
                     System.out.println("'" + name + "' was successfully" +
-                        " removed from the network");
+                            " removed from the network");
                     break;
                 case 0:
                     break;
@@ -167,11 +172,20 @@ public class SocialSim
         {
             System.out.println("Error: Node '" + name + "' already exists");
         }
-//        catch (NoSuchElementException e2)
-//        {
-//            System.out.println("Error: Could not find node '" + name + "'");
-//        }
-        return network;
+        catch (NoSuchElementException e2)
+        {
+            System.out.println("Error: Could not find node '" + name + "'");
+        }
+    }
+
+ /* Displaying network statistics */
+    private static void displayStats(Network n)
+    {
+        System.out.println("\nProb. Like: " + n.getProbLike());
+        System.out.println("Prob. Follow: " + n.getProbFollow() + "\n");
+
+        System.out.println("Nodes: " + n.getVertexCount());
+        System.out.println("Edges: " + n.getEdgeCount());
     }
 
  /* Display general usage information to user about running program, including
