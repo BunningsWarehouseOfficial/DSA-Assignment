@@ -34,26 +34,34 @@ public class IO
                     {
                         if (network.hasVertex(name2))
                         {
-                            network.addEdge(name1, name2);
+                            if (!name1.equals(name2))
+                            {
+                                network.addEdge(name1, name2);
+                            }
+                            else
+                            {
+                                throw new IllegalArgumentException("Error: '" +
+                                    name1 + "' can't follow themselves");
+                            }
                         }
                         else
                         {
                             throw new IllegalArgumentException("Error: Could " +
-                                "not find " + name1);
+                                "not find '" + name1 + "'");
                         }
                     }
                     else
                     {
                         throw new IllegalArgumentException("Error: Could " +
-                                "not find " + name2);
+                            "not find '" + name2 + "'");
                     }
                 }
                 else
                 { //Adding a new person
-                    if (network.hasVertex(line))
+                    if (network.hasVertex(line.trim()))
                     {
                         throw new IllegalArgumentException("Error: " + line +
-                                " is already in the network");
+                            " is already in the network");
                     }
                     else
                     {
@@ -82,7 +90,7 @@ public class IO
     }
 
     public static void saveNetwork(String filename, Network network)
-    {
+    { //TODO saving
         throw new UnsupportedOperationException("Error: Not supported");
     }
 }

@@ -45,7 +45,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
 
     private class DSABinarySearchTreeIterator implements Iterator
     {
-        private DSATreeNode iterNext;
+        private Object iterNext;
         private DSAQueue inOrder;
 
         public DSABinarySearchTreeIterator()
@@ -53,7 +53,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
             inOrder = infixNodeQueue();
             try
             {
-                iterNext = (DSATreeNode) inOrder.dequeue();
+                iterNext = inOrder.dequeue();
             }
             catch (IllegalArgumentException e)
             { //Catching exception caused by empty linked list
@@ -72,10 +72,10 @@ public class DSABinarySearchTree implements Serializable, Iterable
             }
             else
             {
-                value = iterNext.getValue();
+                value = iterNext;
                 try
                 {
-                    iterNext = (DSATreeNode)inOrder.dequeue();
+                    iterNext = inOrder.dequeue();
                 }
                 catch (IllegalArgumentException e)
                 { //Catching exception caused by empty linked list
@@ -174,11 +174,9 @@ public class DSABinarySearchTree implements Serializable, Iterable
         upper = infix.getCount() / 2;
         for (int ii = 0; ii < upper; ii++)
         { //Create queue of nodes for iterator
-             DSATreeNode node;
-             key = (String)infix.dequeue();
-             value = infix.dequeue();
-             node = new DSATreeNode(key, value); //Creating node
-             export.enqueue(node); //Queue node
+            infix.dequeue(); //Get rid of key, iterator only returns value
+            value = infix.dequeue();
+            export.enqueue(value); //Queue node
         }
         return export;
     }
@@ -383,8 +381,8 @@ public class DSABinarySearchTree implements Serializable, Iterable
         }
         else if (key.equals(currNode.getKey())) // ==
         {
-            throw new IllegalArgumentException("Error: Key " + key +
-                                               " already exists");
+            throw new IllegalArgumentException("Error: Key '" + key +
+                                               "' already exists");
         }
         else if (key.compareToIgnoreCase(currNode.getKey()) < 0) // < 0
         {

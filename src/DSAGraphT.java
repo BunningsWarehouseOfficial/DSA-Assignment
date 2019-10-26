@@ -133,22 +133,35 @@ public class DSAGraphT
     }
     public void removeVertex(String label)
     { //Remove vertex AND all occurrences of vertex in any edges
-        DSAGraphVertex v, findValue;
+        DSAGraphVertex adjNode, v1, v2;
         DSABinarySearchTree links;
+        String name, adjNodeName;
 
-        vertices.delete(label);
-        for (Object o : vertices)
-        {
-            v = (DSAGraphVertex)o;
-            //links = v.getAdjacent();
-            //Checking if vertex to be removed is in v's links/edges tree
-              //hasEdge = v.hasEdge(label);
-            //findValue = (DSAGraphVertex)links.find(label);
-            if (v.hasEdge(label))
-            {
-                v.removeEdge(label);
+        for (Object o1 : vertices)
+        { //Removing any edges involving this vertex
+            v1 = (DSAGraphVertex)o1;
+            name = v1.getLabel();
+            if (name.equals(label))
+            { //Removing all nodes from this vertex's adjacency list
+                links = getAdjacent(label);
+                adjNode = getVertex(label);
+
+                for (Object o2 : links)
+                {
+                    v2 = (DSAGraphVertex)o2;
+                    adjNodeName = v2.getLabel();
+
+                    adjNode.removeEdge(adjNodeName);
+                    edgeCount--;
+                }
+            }
+            else if (v1.hasEdge(label))
+            { //Removing appearances of this vertex from other adjacency lists
+                v1.removeEdge(label);
+                edgeCount--;
             }
         }
+        vertices.delete(label);
         vertexCount--;
     }
     public void removeEdge(String source, String sink)
@@ -177,7 +190,26 @@ public class DSAGraphT
     //ACCESSORS
     public int getVertexCount() { return vertexCount; }
     public int getEdgeCount() { return edgeCount; }
-    
+    public DSABinarySearchTree getVertices() { return vertices; }
+    public DSABinarySearchTree getAdjacent(String label)
+    {
+        return getVertex(label).getAdjacent();
+    }
+    public DSAQueue getAdjacentValues(String label)
+    {
+        DSABinarySearchTree links;
+        DSAGraphVertex v;
+        DSAQueue queue = new DSAQueue();
+        links = getAdjacent(label);
+
+        for (Object o : links)
+        {
+            v = (DSAGraphVertex)o;
+            queue.enqueue(v.getValue());
+        }
+        return queue;
+    }
+
     public boolean hasVertex(String label)
     {
         boolean hasVertex;
@@ -197,20 +229,24 @@ public class DSAGraphT
         DSAGraphVertex retVertex;
         retVertex = null;        
 
-        try
-        {
-            retVertex = (DSAGraphVertex)vertices.find(label);
-        }
-        catch (NoSuchElementException e)
-        {
-            throw new IllegalArgumentException("Error: Could not find vertex");
-        }
+        retVertex = (DSAGraphVertex)vertices.find(label);
         return retVertex;
     }
-    public DSABinarySearchTree getAdjacent(String label)
+    public Object getVertexValue(String label)
     {
-        return getVertex(label).getAdjacent();
+        Object value;
+        DSAGraphVertex vertex = getVertex(label);
+        if (vertex != null)
+        {
+            value = vertex.getValue();
+        }
+        else
+        {
+            value = null;
+        }
+        return value;
     }
+
     public boolean isAdjacent(String label1, String label2)
     {
         boolean isAdjacent = false;
