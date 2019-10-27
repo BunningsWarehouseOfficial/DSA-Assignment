@@ -114,74 +114,29 @@ public class IO
                     lineArray = line.split(":");
                     Person newNode;
 
+                    //TODO no load event error checking
                     if (lineArray[0].equals("A") && lineArray.length == 2)
                     { //Add a new person/node
                         name1 = lineArray[1].trim();
-                        if (!network.hasVertex(name1))
-                        {
-                            newNode = new Person(name1);
-                            network.addEvent(newNode, 'A');
-                        }
-                        else
-                        {
-                            throw new IllegalArgumentException("Error: '" +
-                                name1 + "' is already in the network");
-                        }
+                        newNode = new Person(name1);
+                        network.addEvent(newNode, 'A');
                     }
                     else if (lineArray[0].equals("R") && lineArray.length == 2)
                     { //Remove a person/node
                         name1 = lineArray[1].trim();
-                        if (network.hasVertex(name1))
-                        {
-                            network.addEvent(name1, 'R');
-                        }
-                        else
-                        {
-                            throw new IllegalArgumentException("Error: '" +
-                                name1 + "' isn't in the network, it can't be " +
-                                "removed");
-                        }
+                        network.addEvent(name1, 'R');
                     }
                     else if (lineArray[0].equals("F") && lineArray.length == 3)
                     { //Add a new follow/edge
                         name1 = lineArray[1].trim();
                         name2 = lineArray[2].trim();
-                        if (network.hasVertex(name1))
-                        {
-                            if (network.hasVertex(name2))
-                            {
-                                if (!name1.equals(name2))
-                                {
-                                    network.addEvent(name1, name2, 'F');
-                                }
-                                else
-                                {
-                                    throw new IllegalArgumentException("Error:"
-                                        + " '" + name1 + "' can't follow " +
-                                        "themselves");
-                                }
-                            }
-                            else
-                            {
-                                throw new IllegalArgumentException("Error: " +
-                                        "Could not find '" + name1 + "'");
-                            }
-                        }
+                        network.addEvent(name1, name2, 'F');
                     }
                     else if (lineArray[0].equals("U") && lineArray.length == 3)
                     { //Remove a follow/edge
                         name1 = lineArray[1].trim();
                         name2 = lineArray[2].trim();
-                        if (network.hasEdge(name1, name2))
-                        {
-                            network.addEvent(name1, name2, 'U');
-                        }
-                        else
-                        {
-                            throw new IllegalArgumentException("Error: '" +
-                                name2 + "' doesn't follow '" + name1 + "', " +
-                                "can't unfollow");
-                        }
+                        network.addEvent(name1, name2, 'U');
                     }
                     else if (lineArray[0].equals("P") && lineArray.length > 2)
                     { //Add a new post
@@ -190,8 +145,6 @@ public class IO
                         poster = lineArray[1].trim();
                         text = lineArray[2].trim();
 
-                        if (network.hasVertex(poster))
-                        {
                             if (lineArray.length == 3)
                             { //No Clickbait
                                 newPost = new Post(poster, text, 1.0);
@@ -203,12 +156,6 @@ public class IO
                                 newPost = new Post(poster, text, clickbait);
                                 network.addEvent(newPost, 'P');
                             }
-                        }
-                        else
-                        {
-                            throw new IllegalArgumentException("Error: Could " +
-                                "not find '" + poster + "'");
-                        }
                     }
                     else
                     {
@@ -239,8 +186,52 @@ public class IO
         }
     }
 
+ /* Save the network in same format as when loading a network */
     public static void saveNetwork(String filename, Network network)
-    { //TODO saving
-        throw new UnsupportedOperationException("Error: Not supported");
+    {
+        FileOutputStream fileStrm = null;
+        PrintWriter pw;
+        DSALinkedList names;
+        DSAQueue followers;
+        String name, follower;
+
+        try
+        {
+            fileStrm = new FileOutputStream(filename);
+            pw = new PrintWriter(fileStrm);
+
+            //Writing the names of the people in network
+            names = network.getLabels();
+            for (Object o : names)
+            {
+                name = (String)o;
+                pw.println(name);
+            }
+
+            //Writing the follower relationships between people in network
+            for (Object o : names)
+            {
+                name = (String)o;
+                followers = network.getAdjacentValues(name);
+                while (!followers.isEmpty())
+                {
+                    follower = ((Person)followers.dequeue()).getName();
+                    pw.println(name + ":" + follower);
+                }
+            }
+            pw.close();
+        }
+        catch (IOException e1)
+        {
+            if (fileStrm != null)
+            {
+                try
+                {
+                    fileStrm.close();
+                }
+                catch (IOException e2) {}
+            }
+            System.out.println("Error: Couldn't save," + e1.getMessage());
+        }
     }
 }

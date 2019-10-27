@@ -3,8 +3,9 @@ public class Network extends DSAGraphT
     private double probLike;
     private double probFollow;
     private DSAQueue events;
-    private DSALinkedList posts;
+    private DSALinkedList posts; //All posts
     private int nPosts;
+    private int nPostsStale;
 
     //CONSTRUCTOR
     public Network()
@@ -21,6 +22,7 @@ public class Network extends DSAGraphT
     public double getProbLike() { return probLike; }
     public double getProbFollow() { return probFollow; }
     public int getNPosts() { return nPosts; }
+    public int getNPostsStale() { return nPostsStale; }
     public DSALinkedList getPosts() { return posts; }
     public int getEventsCount() { return events.getCount(); }
     public void findNode(String name)
@@ -40,7 +42,37 @@ public class Network extends DSAGraphT
     }
     public char peekQueueTag()
     {
-        return ((Event)events.peek()).getTag();
+        char tag = '0';
+        if (!events.isEmpty())
+        {
+            tag = ((Event)events.peek()).getTag();
+        }
+        return tag;
+    }
+    public DSAQueue findSharers()
+    {
+        String name;
+        Person person;
+        DSALinkedList labels;
+        DSAQueue sharers, justShared;
+        sharers = new DSAQueue();
+
+        labels = getLabels(); //Retrieving all names in network
+        for (Object o : labels)
+        {
+            name = (String)o;
+            person = (Person)getVertexValue(name);
+            justShared = person.getJustShared();
+            if (!justShared.isEmpty()) //Checking they've just 'shared' a post
+            { //If someone is about to share > 1 posts, add them multiple times
+                for (int ii = 0; ii < justShared.getCount(); ii++)
+                {
+                    sharers.enqueue(person);
+                }
+            }
+        }
+
+        return sharers;
     }
 
     //MUTATORS
@@ -96,12 +128,16 @@ public class Network extends DSAGraphT
     public Object dequeueEvent()
     {
         Event event = (Event)events.dequeue();
-        return event;
+        return event.getData();
     }
     public void addPost(Post inPost)
     {
         posts.insertLast(inPost);
         nPosts++;
+    }
+    public void addPostStale()
+    {
+        nPostsStale++;
     }
     public void addEdge(String source, String sink)
     {

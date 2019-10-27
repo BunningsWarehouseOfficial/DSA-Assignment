@@ -209,6 +209,18 @@ public class DSAGraphT
         }
         return queue;
     }
+    public DSALinkedList getLabels()
+    {
+        DSALinkedList labels = new DSALinkedList();
+        DSAGraphVertex v;
+        for (Object o : vertices)
+        {
+            v = (DSAGraphVertex)o;
+            labels.insertLast(v.getLabel());
+        }
+
+        return labels;
+    }
 
     public boolean hasVertex(String label)
     {
@@ -234,6 +246,7 @@ public class DSAGraphT
         }
         return hasEdge;
     }
+
     public DSAGraphVertex getVertex(String label)
     {
         DSAGraphVertex retVertex;

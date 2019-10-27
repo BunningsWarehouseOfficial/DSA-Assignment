@@ -43,6 +43,7 @@ public class DSABinarySearchTree implements Serializable, Iterable
         }
     }
 
+    //iterator implementation
     private class DSABinarySearchTreeIterator implements Iterator
     {
         private Object iterNext;

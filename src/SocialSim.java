@@ -6,8 +6,8 @@ public class SocialSim
 {
     public static void main(String[] args)
     {
-        try
-        {
+//        try
+//        {
             if (args.length == 5)
             { //Checking for simulation mode
                 //TODO check for correct -s CLI format
@@ -36,11 +36,11 @@ public class SocialSim
                     "line arguments, run program with the -i flag, the -s " +
                     "flag or no flags");
             }
-        }
-        catch (IllegalArgumentException e)
-        {
-            System.out.println("Error: " + e.getMessage());
-        }
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//        }//TODO
     }
 
  /* Main menu for the interactive testing environment */
@@ -48,13 +48,14 @@ public class SocialSim
     {
         Scanner sc = new Scanner(System.in);
         Network network = new Network();
+        DSAQueue checkStale = new DSAQueue();
         String filename;
         int cmd = -1;
 
         do
         {
-            try
-            {
+//            try
+//            {
                 System.out.println("\n[1] Load Network\n[2] Load Events File" +
                     "\n[3] Set Probabilities \n[4] Node Operations" +
                     "\n[5] Edge Operations\n[6] New Post\n[7] Display Network" +
@@ -64,11 +65,18 @@ public class SocialSim
                 switch (cmd)
                 {
                     case 1: //Load Network
+                        double pLike, pFollow;
+                        //Carrying over probabilities to keep them consistent
+                        pLike = network.getProbLike();
+                        pFollow = network.getProbFollow();
+
                         System.out.print("Filename: ");
                         filename = sc.nextLine();
                         try
                         {
                             network = IO.loadNetwork(filename);
+                            network.setProbLike(pLike);
+                            network.setProbFollow(pFollow);
                         }
                         catch (IllegalArgumentException e)
                         {
@@ -78,14 +86,14 @@ public class SocialSim
                     case 2: //Load Events
                         System.out.print("Filename: ");
                         filename = sc.nextLine();
-                        try
-                        {
+//                        try
+//                        {
                             IO.loadEvents(filename, network);
-                        }
-                        catch (IllegalArgumentException e)
-                        {
-                            System.out.println(e.getMessage());
-                        }
+//                        }
+//                        catch (IllegalArgumentException e)
+//                        {//TODO
+//                            System.out.println(e.getMessage());
+//                        }
                         break;
                     case 3: //Probabilities
                         setProbabilities(network);
@@ -106,7 +114,7 @@ public class SocialSim
                         displayStats(network);
                         break;
                     case 9: //Run Timestep
-                        timeStep(network);
+                        timeStep(network, checkStale);
                         break;
                     case 10: //Save
                         System.out.print("Filename: ");
@@ -120,16 +128,15 @@ public class SocialSim
                         }
                         break;
                 }
-            }
-            catch (IllegalArgumentException e1)
-            {
-                System.out.println("Error: Invalid input");
-            }
-            catch (InputMismatchException e2)
-            {
-                System.out.println("Error: Invalid input");
-                sc.nextLine();
-            }
+//            } //TODO
+//            catch (IllegalArgumentException e1)
+//            {
+//                System.out.println("Error: Invalid input");
+//            }
+//            catch (NumberFormatException | InputMismatchException e2)
+//            {
+//                System.out.println("Error: Invalid input");
+//            }
         } while (cmd != 0);
     }
 
@@ -285,20 +292,19 @@ public class SocialSim
 
         System.out.println("Nodes: " + n.getVertexCount());
         System.out.println("Edges: " + n.getEdgeCount());
-        System.out.println("Posts: " + n.getNPosts());
+        System.out.println("Posts: " + n.getNPosts() + " (" + n.getNPostsStale()
+                           + " stale)");
         System.out.println("Events in Timestep Queue: " + n.getEventsCount());
     }
 
-    private static void timeStep(Network network)
+    private static void timeStep(Network network, DSAQueue checkStale)
     {
         String name, followee, follower;
-        Person person, poster;
-        Post post;
+        Person person, poster, viewer;
+        DSAQueue sharers, followers;
+        Post post, sharedPost;
+        int count;
         char tag;
-
-        //TODO
-        //Search network, checking for nodes 'just shared' to spread them
-        //for (Object o : )
 
         //Pulling next new event from events queue
         tag = network.peekQueueTag();
@@ -326,10 +332,52 @@ public class SocialSim
                 post = (Post)network.dequeueEvent();
                 poster = (Person)network.getVertexValue(post.getPoster());
 
-                poster.setJustShared(post);
+                poster.addJustShared(post);
                 poster.addPost();
                 network.addPost(post);
+
+                checkStale.enqueue(post);
                 break;
+        }
+
+        //Search network, checking for nodes just 'shared' to spread them
+        sharers = network.findSharers();
+        while (!sharers.isEmpty())
+        {
+            //Get the person who shared a post
+            person = (Person)sharers.dequeue();
+            //Retrieve the post being shared from person's sharing queue
+            sharedPost = (Post)person.getJustShared().dequeue();
+            //Get the original poster
+            poster = (Person)network.getVertexValue(sharedPost.getPoster());
+            followers = network.getAdjacentValues(person.getName());
+            while (!followers.isEmpty())
+            {
+                viewer = (Person)followers.dequeue();
+                viewer.viewPost(sharedPost, poster, network);
+                    // ^ numSeen on post updated here
+            }
+        }
+
+        //Check to see if any posts have become 'stale'
+        count = checkStale.getCount();
+        for (int ii = 0; ii < count; ii++)
+        {
+            int current, prev;
+            Post checking = (Post)checkStale.dequeue();
+            current = checking.getNumSeen();
+            prev = checking.getNumSeenPrev();
+
+            if (current != prev)
+            { //Has changed: not stale
+                checking.updateNumSeenPrev(); //Make prev = current
+                checkStale.enqueue(checking); //Have it checked next timeStep
+            }
+            else
+            { //Hasn't changed: stale
+                checking.setStale(true);
+                network.addPostStale();
+            }
         }
     }
 
