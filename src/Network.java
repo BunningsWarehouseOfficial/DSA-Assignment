@@ -6,6 +6,7 @@ public class Network extends DSAGraphT
     private DSALinkedList posts; //All posts
     private int nPosts;
     private int nPostsStale;
+    private DSAQueue timeStepText; //For printing to the log
 
     //CONSTRUCTOR
     public Network()
@@ -16,6 +17,8 @@ public class Network extends DSAGraphT
         events = new DSAQueue();
         posts = new DSALinkedList();
         nPosts = 0;
+        nPostsStale = 0;
+        timeStepText = new DSAQueue();
     }
 
     //ACCESSORS
@@ -98,6 +101,7 @@ public class Network extends DSAGraphT
             throw new IllegalArgumentException("Error: Invalid probability");
         }
     }
+
     public void addEvent(Object eventData, char tag)
     { //Adding a standard event
         if (eventData != null)
@@ -130,6 +134,7 @@ public class Network extends DSAGraphT
         Event event = (Event)events.dequeue();
         return event.getData();
     }
+
     public void addPost(Post inPost)
     {
         posts.insertLast(inPost);
@@ -139,6 +144,21 @@ public class Network extends DSAGraphT
     {
         nPostsStale++;
     }
+
+    public void enqueueTimeStepText(String text)
+    {
+        timeStepText.enqueue(text);
+    }
+    public String emptyTimeStepText()
+    {
+        String text = "";
+        while (!timeStepText.isEmpty())
+        {
+            text += (String)timeStepText.dequeue();
+        }
+        return text;
+    }
+
     @Override
     public void addEdge(String source, String sink)
     {

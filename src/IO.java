@@ -1,4 +1,6 @@
 import java.io.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 //TODO rigorous file input testing (medium-low priority)
 
@@ -114,7 +116,6 @@ public class IO
                     lineArray = line.split(":");
                     Person newNode;
 
-                    //TODO no load event error checking
                     if (lineArray[0].equals("A") && lineArray.length == 2)
                     { //Add a new person/node
                         name1 = lineArray[1].trim();
@@ -136,7 +137,7 @@ public class IO
                     { //Remove a follow/edge
                         name1 = lineArray[1].trim();
                         name2 = lineArray[2].trim();
-                        network.addEvent(name1, name2, 'U');
+                        network.addEvent(name1, name2, 'F');
                     }
                     else if (lineArray[0].equals("P") && lineArray.length > 2)
                     { //Add a new post
@@ -145,17 +146,17 @@ public class IO
                         poster = lineArray[1].trim();
                         text = lineArray[2].trim();
 
-                            if (lineArray.length == 3)
-                            { //No Clickbait
-                                newPost = new Post(poster, text, 1.0);
-                                network.addEvent(newPost, 'P');
-                            }
-                            else if (lineArray.length == 4)
-                            { //Clickbait
-                                int clickbait = Integer.parseInt(lineArray[3]);
-                                newPost = new Post(poster, text, clickbait);
-                                network.addEvent(newPost, 'P');
-                            }
+                        if (lineArray.length == 3)
+                        { //No Clickbait
+                            newPost = new Post(poster, text, 1.0);
+                            network.addEvent(newPost, 'P');
+                        }
+                        else if (lineArray.length == 4)
+                        { //Clickbait
+                            int clickbait = Integer.parseInt(lineArray[3]);
+                            newPost = new Post(poster, text, clickbait);
+                            network.addEvent(newPost, 'P');
+                        }
                     }
                     else
                     {
@@ -233,5 +234,84 @@ public class IO
             }
             System.out.println("Error: Couldn't save," + e1.getMessage());
         }
+    }
+
+ /* Create a new logfile to save information about the simulation */
+    public static String newLogfile(String networkFile, String eventFile,
+                                    double probLike, double probFollow)
+    {
+        FileOutputStream fileStrm = null;
+        PrintWriter pw;
+        String filename;
+        DateTimeFormatter logtime =
+                          DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        LocalDateTime time = LocalDateTime.now();
+        filename = "log_" + logtime.format(time) + "_UTC";
+
+        try
+        {
+            fileStrm = new FileOutputStream(filename);
+            pw = new PrintWriter(fileStrm);
+
+            pw.println("\n\nNetwork File: " + networkFile);
+            pw.println("Event File: " + eventFile);
+            pw.println("Prob. Like: " + probLike);
+            pw.println("Prob. Follow: " + probFollow + "\n");
+            pw.close();
+        }
+        catch (IOException e1)
+        {
+            if (fileStrm != null)
+            {
+                try
+                {
+                    fileStrm.close();
+                }
+                catch (IOException e2) {}
+            }
+            System.out.println("Error: Couldn't create log," + e1.getMessage());
+            filename = null; //Used to alert rest of the program of failure
+        }
+        return filename;
+    }
+
+ /* Add new information from timestep to end of logfile */
+    public static boolean appendLogFile(String filename, String text,
+                                        int stepNum)
+    {
+        FileWriter fWriter = null;
+        PrintWriter pw;
+        boolean status = true;
+
+        try
+        {
+            fWriter = new FileWriter(filename, true);
+            pw = new PrintWriter(fWriter);
+
+            if (stepNum != 0)
+            { //Don't write this for final input to log
+                pw.print("\nTime Step " + stepNum + "\n===============");
+            }
+            if (text.equals(""))
+            {
+                pw.print("\nNothing happened");
+            }
+            pw.println(text);
+            pw.close();
+        }
+        catch (IOException e1)
+        {
+            if (fWriter != null)
+            {
+                try
+                {
+                    fWriter.close();
+                }
+                catch (IOException e2) {}
+            }
+            System.out.println("Error: Couldn't create log," + e1.getMessage());
+            status = false;
+        }
+        return status;
     }
 }

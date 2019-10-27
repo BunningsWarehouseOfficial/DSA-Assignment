@@ -6,11 +6,35 @@ public class SocialSim
 {
     public static void main(String[] args)
     {
-//        try
-//        {
-            if (args.length == 5)
+        try
+        {
+            if (args.length == 5) //TODO test input error catching
             { //Checking for simulation mode
-                //TODO check for correct -s CLI format
+                if (args[0].equals("-s"))
+                {
+                    String networkFile, eventFile;
+                    double pLike, pFollow;
+                    networkFile = args[1];
+                    eventFile = args[2];
+                    pLike = Double.parseDouble(args[3]);
+                    pFollow = Double.parseDouble(args[4]);
+                    if (pLike > 1 || pFollow > 1 || pLike < 0 || pFollow < 0)
+                    {
+                        throw new IllegalArgumentException("Probabilities " +
+                            "must by >= 0 and <= 1");
+                    }
+                    else
+                    {
+                        simulation(networkFile, eventFile, pLike, pFollow);
+                    }
+                }
+                else
+                { //Checking for an incorrect command line argument
+                    throw new IllegalArgumentException("Command line argument" +
+                        "must either be the -i flag for the interactive" +
+                        "testing environment or the -s flag for simulation " +
+                        "mode");
+                }
             }
             else if (args.length == 1)
             { //Checking for interactive mode
@@ -36,14 +60,90 @@ public class SocialSim
                     "line arguments, run program with the -i flag, the -s " +
                     "flag or no flags");
             }
-//        }
-//        catch (Exception e)
-//        {
-//            System.out.println(e.getMessage());
-//        }//TODO replace at end
+        }
+        catch (NumberFormatException e1)
+        {
+            System.out.println(e1.getMessage());
+        }
+        catch (IllegalArgumentException e2)
+        {
+            System.out.println("Error: " + e2.getMessage());
+        }
+        catch (Exception e3)
+        {
+            System.out.println(e3.getMessage());
+        }//TODO replace at end
     }
 
- /* Main menu for the interactive testing environment */
+ /* Runs simulation mode, outputting statistics to a file after each timestep */
+    private static void simulation(String networkFile, String eventFile,
+                                   double probLike, double probFollow)
+    {
+        Network n;
+        String filename;
+
+        try
+        {   //Load the network
+            n = IO.loadNetwork(networkFile);
+            n.setProbLike(probLike);
+            n.setProbFollow(probFollow);
+            //Load events file
+            IO.loadEvents(eventFile, n);
+
+            filename = IO.newLogfile(networkFile, eventFile, probLike,
+                                     probFollow);
+            if (filename != null)
+            {
+                boolean status = true;
+                String logText;
+                DSAQueue checkStale = new DSAQueue();
+                DSAQueue textQueue = new DSAQueue();
+                int stepNum = 1; //Always runs first time
+                while (status == true && (n.getEventsCount() != 0 ||
+                       n.getNPosts() != n.getNPostsStale() || stepNum == 1))
+                {
+                    timeStep(n, checkStale);
+                    displayStats(n, textQueue);
+                    logText = "";
+                    while (!textQueue.isEmpty())
+                    {
+                        logText += (String)textQueue.dequeue();
+                    }
+                    logText += n.emptyTimeStepText();
+                    status = IO.appendLogFile(filename, logText, stepNum);
+                    stepNum++;
+                }
+
+                if (status == true)
+                {
+                    //Displaying popularity 'leaderboards' at end of logfile
+                    logText = "";
+                    displayPopular(n, textQueue);
+                    while (!textQueue.isEmpty())
+                    {
+                        logText += textQueue.dequeue();
+                    }
+                    IO.appendLogFile(filename, logText, 0);
+                    System.out.println("Successfully ran simulation");
+                }
+                else
+                { //In case of some file IO failure
+                    System.out.println("Simulation failed");
+                }
+            }
+        }
+        catch (IllegalArgumentException e1)
+        {
+            System.out.println(e1.getMessage());
+        }
+        catch (IndexOutOfBoundsException e2)
+        {
+            System.out.println("Error: Invalid colon placement in file");
+        }
+
+    }
+
+    /* Main menu for the interactive testing environment */
     private static void menu()
     {
         Scanner sc = new Scanner(System.in);
@@ -78,9 +178,9 @@ public class SocialSim
                             network.setProbLike(pLike);
                             network.setProbFollow(pFollow);
                         }
-                        catch (IllegalArgumentException e)
+                        catch (IllegalArgumentException e1)
                         {
-                            System.out.println(e.getMessage());
+                            System.out.println(e1.getMessage());
                         }
                         catch (IndexOutOfBoundsException e2)
                         {
@@ -121,7 +221,18 @@ public class SocialSim
                         network.displayAsList();
                         break;
                     case 8: //Display Stats
-                        displayStats(network);
+                        DSAQueue stats = new DSAQueue();
+                        displayStats(network, stats);
+                        displayPopular(network, stats);
+
+                        System.out.println("\nProb. Like: " +
+                                           network.getProbLike());
+                        System.out.println("Prob. Follow: " +
+                                           network.getProbFollow());
+                        while (!stats.isEmpty())
+                        {
+                            System.out.print(stats.dequeue());
+                        }
                         break;
                     case 9: //Run Timestep
                         timeStep(network, checkStale);
@@ -153,7 +264,7 @@ public class SocialSim
         double probLike, probFollow;
 
         System.out.print("Prob. Like: ");
-        probLike = Double.parseDouble(sc.nextLine());
+        probLike = Double.parseDouble(sc.nextLine()); //TODO test
         network.setProbLike(probLike);
 
         System.out.print("Prob. Follow: ");
@@ -291,37 +402,39 @@ public class SocialSim
     }
 
  /* Displaying network statistics */
-    private static void displayStats(Network n)
+    private static void displayStats(Network n, DSAQueue queue)
+    {
+        queue.enqueue("\nNodes: " + n.getVertexCount());
+        queue.enqueue("\nEdges: " + n.getEdgeCount());
+        queue.enqueue("\nPosts: " + n.getNPosts() + " (" +
+                      n.getNPostsStale() + " stale)");
+        queue.enqueue("\nEvents in Timestep Queue: " + n.getEventsCount() +
+                      "\n");
+    }
+
+ /* Displaying people and posts in order of popularity */
+    private static void displayPopular(Network n, DSAQueue queue)
     {
         Person[] people;
         Post[] posts;
         people = sortPeople(n);
         posts = sortPosts(n);
 
-        System.out.println("\nProb. Like: " + n.getProbLike());
-        System.out.println("Prob. Follow: " + n.getProbFollow() + "\n");
-
-        System.out.println("Nodes: " + n.getVertexCount());
-        System.out.println("Edges: " + n.getEdgeCount());
-        System.out.println("Posts: " + n.getNPosts() + " (" + n.getNPostsStale()
-                           + " stale)");
-        System.out.println("Events in Timestep Queue: " + n.getEventsCount());
-
-        System.out.println("\nPeople in Order of Total Followers:");
-        System.out.println("===================================");
+        queue.enqueue("\nPeople in Order of Total Followers:");
+        queue.enqueue("\n===================================\n");
         for (int ii = people.length - 1; ii >= 0; ii--)
         {
-            System.out.println(people[ii].getName() + ": " +
-                               people[ii].getNFollowers());
+            queue.enqueue(people[ii].getName() + ": " +
+                    people[ii].getNFollowers() + "\n");
         }
 
-        System.out.println("\nPosts in Order of Likes:");
-        System.out.println("========================");
+        queue.enqueue("\nPosts in Order of Likes:");
+        queue.enqueue("\n========================\n");
         for (int jj = posts.length - 1; jj >= 0; jj--)
         {
-            System.out.println(posts[jj].getPoster() + ": " +
-                               posts[jj].getLikes() + "\n'" +
-                               posts[jj].getText() + "'\n");
+            queue.enqueue(posts[jj].getPoster() + ": " +
+                    posts[jj].getLikes() + "\n'" +
+                    posts[jj].getText() + "'\n");
         }
     }
 
@@ -376,31 +489,101 @@ public class SocialSim
         {
             case 'A':
                 person = (Person)network.dequeueEvent();
-                network.addVertex(person.getName(), person);
+                if (network.hasVertex(person.getName()))
+                {
+                    System.out.println("Error: '" + person.getName() + "' is " +
+                        "already in the network, can't add");
+                }
+                else
+                {
+                    network.addVertex(person.getName(), person);
+                    network.enqueueTimeStepText("\n- A: Added '" +
+                        person.getName() + "' to network");
+                }
                 break;
             case 'R':
                 name = (String)network.dequeueEvent();
-                network.removeVertex(name);
+                if (!network.hasVertex(name))
+                {
+                    System.out.println("Error: '" + name + "' is " +
+                        "not in the network, can't be removed");
+                }
+                else
+                {
+                    network.removeVertex(name);
+                    network.enqueueTimeStepText("\n- R: Removed '" + name +
+                        "' from network");
+                }
                 break;
             case 'F':
                 followee = (String)network.dequeueEvent();
-                follower = (String)network.dequeueEvent();
-                network.addEdge(followee, follower);
+                follower = (String) network.dequeueEvent();
+                if (!network.hasVertex(followee))
+                {
+                    System.out.println("Error: '" + followee + "' is not in " +
+                        "the network, can't be a followee");
+                }
+                else if (!network.hasVertex(follower))
+                {
+                    System.out.println("Error: '" + follower + "' is not in " +
+                        "the network, can't be a follower");
+                }
+                else if (network.hasEdge(followee, follower))
+                {
+                    System.out.println("Error: '" + follower + "' already " +
+                        "follows '" + followee + "'");
+                }
+                else
+                {
+                    network.addEdge(followee, follower);
+                    network.enqueueTimeStepText("\n- F: '" + follower + "' " +
+                        "now follows '" + followee + "'");
+                }
                 break;
             case 'U':
                 followee = (String)network.dequeueEvent();
                 follower = (String)network.dequeueEvent();
-                network.removeEdge(followee, follower);
+                if (!network.hasVertex(followee))
+                {
+                    System.out.println("Error: '" + followee + "' is not in " +
+                        "the network, can't be unfollowed");
+                }
+                else if (!network.hasVertex(follower))
+                {
+                    System.out.println("Error: '" + follower + "' is not in " +
+                        "the network, can't remove follow");
+                }
+                else if (!network.hasEdge(followee, follower))
+                {
+                    System.out.println("Error: '" + follower + "' doesn't " +
+                        "follow '" + followee + "', can't unfollow");
+                }
+                else
+                {
+                    network.removeEdge(followee, follower);
+                    network.enqueueTimeStepText("\n- U: '" + follower + "' " +
+                        "unfollowed '" + followee + "'");
+                }
                 break;
             case 'P':
                 post = (Post)network.dequeueEvent();
-                poster = (Person)network.getVertexValue(post.getPoster());
+                if (!network.hasVertex(post.getPoster()))
+                {
+                    System.out.println("Error: '" + post.getPoster() + "' is " +
+                        "not in the network, can't post");
+                }
+                else
+                {
+                    poster = (Person)network.getVertexValue(post.getPoster());
 
-                poster.addJustShared(post);
-                poster.addPost();
-                network.addPost(post);
+                    poster.addJustShared(post);
+                    poster.addPost();
+                    network.addPost(post);
+                    network.enqueueTimeStepText("\n- P: '" + poster.getName() +
+                        "' created a post\n  > '" + post.getText() + "'");
 
-                checkStale.enqueue(post);
+                    checkStale.enqueue(post);
+                }
                 break;
         }
 
@@ -441,6 +624,9 @@ public class SocialSim
             { //Hasn't changed: stale
                 checking.setStale(true);
                 network.addPostStale();
+                network.enqueueTimeStepText("\n- STALE: Post by '" +
+                    checking.getPoster() + "'\n  > '" +
+                    checking.getText() + "'");
             }
         }
     }

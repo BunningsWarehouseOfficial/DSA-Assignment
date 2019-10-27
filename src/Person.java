@@ -109,6 +109,8 @@ public class Person implements Comparable<Person>
             { //Like the post (hence 'share' it also)
                 poster.addLike();
                 viewedPost.addLike();
+                network.enqueueTimeStepText("\n- LIKE: '" + name + "' liked a" +
+                    " post by '" + poster.getName() + "'");
                 justShared.enqueue(viewedPost);
 
                 if (!network.hasEdge(poster.getName(), name))
@@ -116,6 +118,8 @@ public class Person implements Comparable<Person>
                     if (Math.random() <= network.getProbFollow())
                     { //If not already following, follow the poster
                         network.addEdge(poster.getName(), name);
+                        network.enqueueTimeStepText("\n- FOLLOW: '" + name +
+                            "' followed '" + poster.getName() + "'");
                     }
                 }
             }
