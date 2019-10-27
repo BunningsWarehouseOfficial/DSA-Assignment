@@ -40,7 +40,7 @@ public class SocialSim
 //        catch (Exception e)
 //        {
 //            System.out.println(e.getMessage());
-//        }//TODO
+//        }//TODO replace at end
     }
 
  /* Main menu for the interactive testing environment */
@@ -54,8 +54,8 @@ public class SocialSim
 
         do
         {
-//            try
-//            {
+            try
+            {
                 System.out.println("\n[1] Load Network\n[2] Load Events File" +
                     "\n[3] Set Probabilities \n[4] Node Operations" +
                     "\n[5] Edge Operations\n[6] New Post\n[7] Display Network" +
@@ -82,18 +82,28 @@ public class SocialSim
                         {
                             System.out.println(e.getMessage());
                         }
+                        catch (IndexOutOfBoundsException e2)
+                        {
+                            System.out.println("Error: Invalid colon " +
+                                "placement in file");
+                        }
                         break;
                     case 2: //Load Events
                         System.out.print("Filename: ");
                         filename = sc.nextLine();
-//                        try
-//                        {
+                        try
+                        {
                             IO.loadEvents(filename, network);
-//                        }
-//                        catch (IllegalArgumentException e)
-//                        {//TODO
-//                            System.out.println(e.getMessage());
-//                        }
+                        }
+                        catch (IllegalArgumentException e1)
+                        {
+                            System.out.println(e1.getMessage());
+                        }
+                        catch (IndexOutOfBoundsException e2)
+                        {
+                            System.out.println("Error: Invalid colon " +
+                                    "placement in file");
+                        }
                         break;
                     case 3: //Probabilities
                         setProbabilities(network);
@@ -105,7 +115,7 @@ public class SocialSim
                         edgeOperations(network);
                         break;
                     case 6: //New Post
-                        newPost(network); //TODO test with timestep
+                        newPost(network);
                         break;
                     case 7: //Display Network
                         network.displayAsList();
@@ -128,15 +138,11 @@ public class SocialSim
                         }
                         break;
                 }
-//            } //TODO
-//            catch (IllegalArgumentException e1)
-//            {
-//                System.out.println("Error: Invalid input");
-//            }
-//            catch (NumberFormatException | InputMismatchException e2)
-//            {
-//                System.out.println("Error: Invalid input");
-//            }
+            }
+            catch (IllegalArgumentException | InputMismatchException e1)
+            {
+                System.out.println("Error: Invalid input");
+            }
         } while (cmd != 0);
     }
 
@@ -287,6 +293,11 @@ public class SocialSim
  /* Displaying network statistics */
     private static void displayStats(Network n)
     {
+        Person[] people;
+        Post[] posts;
+        people = sortPeople(n);
+        posts = sortPosts(n);
+
         System.out.println("\nProb. Like: " + n.getProbLike());
         System.out.println("Prob. Follow: " + n.getProbFollow() + "\n");
 
@@ -295,8 +306,61 @@ public class SocialSim
         System.out.println("Posts: " + n.getNPosts() + " (" + n.getNPostsStale()
                            + " stale)");
         System.out.println("Events in Timestep Queue: " + n.getEventsCount());
+
+        System.out.println("\nPeople in Order of Total Followers:");
+        System.out.println("===================================");
+        for (int ii = people.length - 1; ii >= 0; ii--)
+        {
+            System.out.println(people[ii].getName() + ": " +
+                               people[ii].getNFollowers());
+        }
+
+        System.out.println("\nPosts in Order of Likes:");
+        System.out.println("========================");
+        for (int jj = posts.length - 1; jj >= 0; jj--)
+        {
+            System.out.println(posts[jj].getPoster() + ": " +
+                               posts[jj].getLikes() + "\n'" +
+                               posts[jj].getText() + "'\n");
+        }
     }
 
+    /* Sorting people in the network by number of followers */
+    private static Person[] sortPeople(Network n)
+    {
+        int ii;
+        DSALinkedList people = n.getAllVertexValues();
+        Person[] array = new Person[people.getCount()];
+
+        ii = 0;
+        for (Object o : people)
+        {
+            array[ii] = (Person)o;
+            ii++;
+        }
+        mergeSort(array);
+        return array;
+    }
+
+    /* Sorting posts in the network by number of likes */
+    private static Post[] sortPosts(Network n)
+    {
+        int ii;
+        DSALinkedList posts = n.getPosts();
+        Post[] array = new Post[posts.getCount()];
+
+        ii = 0;
+        for (Object o : posts)
+        {
+            array[ii] = (Post)o;
+            ii++;
+        }
+        mergeSort(array);
+        return array;
+    }
+
+ /* Steps through the simulation by one unit of 'time', pulling an event out
+    of the queue and spreading any shared posts through the network */
     private static void timeStep(Network network, DSAQueue checkStale)
     {
         String name, followee, follower;
@@ -388,4 +452,72 @@ public class SocialSim
         //TODO user information print statements
         System.out.println("\n   \n");
     }
+
+    //SORTING //TODO cite
+
+    // mergeSort - front-end for kick-starting the recursive algorithm
+    private static void mergeSort(Object[] A)
+    {
+        int leftIdx, rightIdx;
+        leftIdx = 0;
+        rightIdx = A.length - 1;
+        mergeSortRecurse(A, leftIdx, rightIdx);
+    }//mergeSort()
+    private static Object[] mergeSortRecurse(Object[] A, int leftIdx,
+                                             int rightIdx)
+    {
+        if (leftIdx < rightIdx)
+        {
+            int midIdx;
+            midIdx = (leftIdx + rightIdx) / 2;
+
+            mergeSortRecurse(A, leftIdx, midIdx); //Sort left half of subarray
+            mergeSortRecurse(A, midIdx + 1, rightIdx); //Sort right half
+            merge((Comparable[])A, leftIdx, midIdx, rightIdx);
+        } //Base case: array is already sorted (only one element)
+        return A;
+    }//mergeSortRecurse()
+    private static Object[] merge(Comparable[] A, int leftIdx, int midIdx,
+                                  int rightIdx)
+    {
+        int ii, jj, kk;
+        Object[] tempA = new Object[rightIdx - leftIdx + 1];
+        ii = leftIdx; //Idx for the 'front' of left subarray
+        jj = midIdx + 1; //Idx for the 'front' of right subarray
+        kk = 0; //Idx for next free element in tempA
+
+        //Merge subarrays into tempA
+        while (ii <= midIdx && jj <= rightIdx)
+        {
+            if (A[ii].compareTo(A[jj]) <= 0) //Use <= for stable sort
+            {
+                tempA[kk] = A[ii]; //Take from left subarray
+                ii++;
+            }
+            else
+            {
+                tempA[kk] = A[jj]; //Take from right subarray
+                jj++;
+            }
+            kk++;
+        }
+
+        for (ii = ii; ii <= midIdx; ii++) //Flush remainder from left
+        {
+            tempA[kk] = A[ii];
+            kk++;
+        }
+        for (jj = jj; jj <= rightIdx; jj++) //Flush remainder from right
+        {
+            tempA[kk] = A[jj];
+            kk++;
+        }
+
+        for (kk = leftIdx; kk <= rightIdx; kk++) //Copy now sorted tempA to A
+        {
+            A[kk] = (Comparable)tempA[kk - leftIdx]; /*Use kk - leftIdx to
+                                                       align tempA to 0*/
+        }
+        return A;
+    }//merge()
 }

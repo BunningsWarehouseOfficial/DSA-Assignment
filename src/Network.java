@@ -139,6 +139,7 @@ public class Network extends DSAGraphT
     {
         nPostsStale++;
     }
+    @Override
     public void addEdge(String source, String sink)
     {
         Person followee, follower;
@@ -149,6 +150,7 @@ public class Network extends DSAGraphT
         followee.setNFollowers(followee.getNFollowers() + 1);
         follower.setNFollowing(follower.getNFollowing() + 1);
     }
+    @Override
     public void removeVertex(String label)
     {
         int count;

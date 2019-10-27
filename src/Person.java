@@ -1,4 +1,4 @@
-public class Person
+public class Person implements Comparable<Person>
 {
     private String name;
     private int nFollowers;
@@ -39,6 +39,14 @@ public class Person
             "\nFollowing: " + String.valueOf(nFollowing) + "\nPosts: " +
             String.valueOf(nPosts) + "\nLikes: " + String.valueOf(nLikes);
         return s;
+    }
+
+    @Override
+    public int compareTo(Person p)
+    { //Used for sorts
+        int value;
+        value = nFollowers - p.getNFollowers();
+        return value;
     }
 
     //MUTATORS
@@ -103,17 +111,11 @@ public class Person
                 viewedPost.addLike();
                 justShared.enqueue(viewedPost);
 
-                //TODO temp
-                System.out.println("+like for " + poster.getName());
-
                 if (!network.hasEdge(poster.getName(), name))
                 {
                     if (Math.random() <= network.getProbFollow())
                     { //If not already following, follow the poster
                         network.addEdge(poster.getName(), name);
-
-                        //TODO temp
-                        System.out.println("+follow for " + poster.getName());
                     }
                 }
             }

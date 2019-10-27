@@ -1,4 +1,4 @@
-public class Post
+public class Post implements Comparable<Post>
 {
     private String poster;
     private String text;
@@ -74,6 +74,14 @@ public class Post
             }
         }
         return hasSeen;
+    }
+
+    @Override
+    public int compareTo(Post p)
+    { //Used for sorts
+        int value;
+        value = likes - p.getLikes();
+        return value;
     }
 
     //MUTATORS

@@ -1,10 +1,13 @@
 import java.util.*;
 import java.io.*;
 
+//TODO cite
+
 public class DSALinkedList implements Iterable, Serializable
 {
     private DSAListNode head;
     private DSAListNode tail;
+    private int count;
 
     private class DSAListNode implements Serializable
     {
@@ -95,9 +98,11 @@ public class DSALinkedList implements Iterable, Serializable
     {
         head = null;
         tail = null;
+        count = 0;
     }
 
     //accessors
+    public int getCount() { return count; }
     public boolean isEmpty()
     {
         boolean empty;
@@ -149,6 +154,7 @@ public class DSALinkedList implements Iterable, Serializable
             newNd.setNext(head);
             head = newNd;
         }
+        count++;
     }
 
     public void insertLast(Object newValue)
@@ -166,6 +172,7 @@ public class DSALinkedList implements Iterable, Serializable
             newNd.setPrev(tail);
             tail = newNd;
         }
+        count++;
     }
 
     public Object removeFirst()
@@ -187,6 +194,7 @@ public class DSALinkedList implements Iterable, Serializable
             head = head.getNext();
             head.setPrev(null);
         }
+        count--;
         return nodeValue;
     }
 
@@ -210,6 +218,7 @@ public class DSALinkedList implements Iterable, Serializable
             prevNd.setNext(null);
             tail = prevNd;
         }
+        count--;
         return nodeValue;
     }
 }

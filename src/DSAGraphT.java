@@ -221,6 +221,18 @@ public class DSAGraphT
 
         return labels;
     }
+    public DSALinkedList getAllVertexValues()
+    {
+        DSALinkedList values = new DSALinkedList();
+        DSAGraphVertex v;
+        for (Object o : vertices)
+        {
+            v = (DSAGraphVertex)o;
+            values.insertLast(v.getValue());
+        }
+
+        return values;
+    }
 
     public boolean hasVertex(String label)
     {
@@ -246,30 +258,6 @@ public class DSAGraphT
         }
         return hasEdge;
     }
-
-    public DSAGraphVertex getVertex(String label)
-    {
-        DSAGraphVertex retVertex;
-        retVertex = null;        
-
-        retVertex = (DSAGraphVertex)vertices.find(label);
-        return retVertex;
-    }
-    public Object getVertexValue(String label)
-    {
-        Object value;
-        DSAGraphVertex vertex = getVertex(label);
-        if (vertex != null)
-        {
-            value = vertex.getValue();
-        }
-        else
-        {
-            value = null;
-        }
-        return value;
-    }
-
     public boolean isAdjacent(String label1, String label2)
     {
         boolean isAdjacent = false;
@@ -296,6 +284,29 @@ public class DSAGraphT
             }
         }
         return isAdjacent;
+    }
+
+    public DSAGraphVertex getVertex(String label)
+    {
+        DSAGraphVertex retVertex;
+        retVertex = null;        
+
+        retVertex = (DSAGraphVertex)vertices.find(label);
+        return retVertex;
+    }
+    public Object getVertexValue(String label)
+    {
+        Object value;
+        DSAGraphVertex vertex = getVertex(label);
+        if (vertex != null)
+        {
+            value = vertex.getValue();
+        }
+        else
+        {
+            value = null;
+        }
+        return value;
     }
 
     //DISPLAY
