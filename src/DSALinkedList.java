@@ -1,15 +1,13 @@
+//Obtained from Kristian Rados DSA Practical 3 Work
+
 import java.util.*;
-import java.io.*;
-
-//TODO cite
-
-public class DSALinkedList implements Iterable, Serializable
+public class DSALinkedList implements Iterable
 {
     private DSAListNode head;
     private DSAListNode tail;
     private int count;
 
-    private class DSAListNode implements Serializable
+    private class DSAListNode
     {
         private Object value;
         private DSAListNode next;

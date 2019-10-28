@@ -1,8 +1,10 @@
+/* Author: Kristian Rados (19764285)
+   Created: 23/10/2019
+   Last Modified: 28/10/2019                                                  */
+
 import java.io.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-
-//TODO rigorous file input testing (medium-low priority)
 
 public class IO
 {
@@ -112,34 +114,35 @@ public class IO
             { //Using trim to remove excess whitespace
                 if (line.contains(":"))
                 { //Adding a follower
-                    String name1, name2;
+                    String name1, name2, start;
                     lineArray = line.split(":");
                     Person newNode;
 
-                    if (lineArray[0].equals("A") && lineArray.length == 2)
+                    start = lineArray[0].trim();
+                    if (start.equals("A") && lineArray.length == 2)
                     { //Add a new person/node
                         name1 = lineArray[1].trim();
                         newNode = new Person(name1);
                         network.addEvent(newNode, 'A');
                     }
-                    else if (lineArray[0].equals("R") && lineArray.length == 2)
+                    else if (start.equals("R") && lineArray.length == 2)
                     { //Remove a person/node
                         name1 = lineArray[1].trim();
                         network.addEvent(name1, 'R');
                     }
-                    else if (lineArray[0].equals("F") && lineArray.length == 3)
+                    else if (start.equals("F") && lineArray.length == 3)
                     { //Add a new follow/edge
                         name1 = lineArray[1].trim();
                         name2 = lineArray[2].trim();
                         network.addEvent(name1, name2, 'F');
                     }
-                    else if (lineArray[0].equals("U") && lineArray.length == 3)
+                    else if (start.equals("U") && lineArray.length == 3)
                     { //Remove a follow/edge
                         name1 = lineArray[1].trim();
                         name2 = lineArray[2].trim();
                         network.addEvent(name1, name2, 'F');
                     }
-                    else if (lineArray[0].equals("P") && lineArray.length > 2)
+                    else if (start.equals("P") && lineArray.length > 2)
                     { //Add a new post
                         Post newPost;
                         String poster, text;
@@ -153,7 +156,8 @@ public class IO
                         }
                         else if (lineArray.length == 4)
                         { //Clickbait
-                            int clickbait = Integer.parseInt(lineArray[3]);
+                            int clickbait =
+                                          Integer.parseInt(lineArray[3].trim());
                             newPost = new Post(poster, text, clickbait);
                             network.addEvent(newPost, 'P');
                         }

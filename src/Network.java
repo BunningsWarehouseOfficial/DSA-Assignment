@@ -1,3 +1,7 @@
+/* Author: Kristian Rados (19764285)
+   Created: 23/10/2019
+   Last Modified: 28/10/2019                                                  */
+
 public class Network extends DSAGraphT
 {
     private double probLike;
@@ -34,10 +38,8 @@ public class Network extends DSAGraphT
         node = (Person)getVertexValue(name);
         if (node != null)
         {
-            DSABinarySearchTree links, vertices;
-            DSALinkedList listOfLinkTrees;
+            DSABinarySearchTree links;
             links = getAdjacent(name);
-            vertices = super.getVertices();
 
             node.updateFollowers(links); //In case a follower was removed
             System.out.println(node.toString());

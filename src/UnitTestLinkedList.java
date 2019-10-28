@@ -1,4 +1,4 @@
-//TODO cite
+//Obtained from Connor Beardsmore via Blackboard (DSA, Practical 3)
 
  /***************************************************************************
  *  FILE: TestLinkedList.java

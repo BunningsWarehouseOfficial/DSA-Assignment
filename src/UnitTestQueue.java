@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class QueueTestHarness
+public class UnitTestQueue
 {
     public static void main(String[] args)
     {

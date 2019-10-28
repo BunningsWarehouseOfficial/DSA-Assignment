@@ -1,14 +1,15 @@
+/* Author: Kristian Rados (19764285)
+   Created: 23/10/2019
+   Last Modified: 28/10/2019                                                  */
+
 import java.util.*;
-
-//TODO unit testing (low priority)
-
 public class SocialSim
 {
     public static void main(String[] args)
     {
         try
         {
-            if (args.length == 5) //TODO test input error catching
+            if (args.length == 5)
             { //Checking for simulation mode
                 if (args[0].equals("-s"))
                 {
@@ -72,7 +73,7 @@ public class SocialSim
         catch (Exception e3)
         {
             System.out.println(e3.getMessage());
-        }//TODO replace at end
+        }
     }
 
  /* Runs simulation mode, outputting statistics to a file after each timestep */
@@ -94,6 +95,7 @@ public class SocialSim
                                      probFollow);
             if (filename != null)
             {
+                long startTime = System.nanoTime();
                 boolean status = true;
                 String logText;
                 DSAQueue checkStale = new DSAQueue();
@@ -125,6 +127,9 @@ public class SocialSim
                     }
                     IO.appendLogFile(filename, logText, 0);
                     System.out.println("Successfully ran simulation");
+                    long endTime = System.nanoTime();
+                    System.out.println("Time Taken: " + (int)((double)(endTime
+                                       - startTime) / 1000000.0) + "ms");
                 }
                 else
                 { //In case of some file IO failure
@@ -264,7 +269,7 @@ public class SocialSim
         double probLike, probFollow;
 
         System.out.print("Prob. Like: ");
-        probLike = Double.parseDouble(sc.nextLine()); //TODO test
+        probLike = Double.parseDouble(sc.nextLine());
         network.setProbLike(probLike);
 
         System.out.print("Prob. Follow: ");
@@ -587,7 +592,7 @@ public class SocialSim
                 break;
         }
 
-        //Search network, checking for nodes just 'shared' to spread them
+        //Search network, checking for posts just 'shared' to spread them
         sharers = network.findSharers();
         while (!sharers.isEmpty())
         {
@@ -635,11 +640,25 @@ public class SocialSim
     a description of the two modes and their flags */
     private static void usageInfo()
     {
-        //TODO user information print statements
-        System.out.println("\n   \n");
+        System.out.println("This is a program for analysing the spread of " +
+            "information through a social network.\nEach person is a node in" +
+             " a network and every time someone follows another person, it " +
+            "creates a connection (edge) between them.");
+        System.out.println("\nIn interactive mode, you can step through the " +
+            "simulation, tweak the network and view the details of individual" +
+            " people in the network mid-simulation.\nTo use interactive mode," +
+            " run program as 'SocialSim -i'");
+        System.out.println("\nIn simulation mode, the program runs the entire" +
+            " simulation using the starting parameters provided on the " +
+            "command line and keeps a log of all events that occur at each " +
+            "time step. This log is saved to a dated log file.\nTo use " +
+            "simulation mode, run program as 'SocialSim -s <netfile> " +
+            "<eventfile> <prob_like> <prob_follow>'");
     }
 
-    //SORTING //TODO cite
+    //SORTING
+    //The Rest of This File is
+    //Obtained from Kristian Rados DSA Practical 8 Work
 
     // mergeSort - front-end for kick-starting the recursive algorithm
     private static void mergeSort(Object[] A)

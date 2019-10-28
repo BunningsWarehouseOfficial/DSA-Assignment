@@ -1,6 +1,6 @@
-//TODO cite
+//Obtained from Kristian Rados DSA Practical 4 Work
 
-public class TestTree
+public class UnitTestTree
 {
     public static void main(String[] args)
     {

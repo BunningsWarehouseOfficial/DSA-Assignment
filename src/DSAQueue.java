@@ -1,4 +1,5 @@
-//TODO self-cite here
+//Obtained from Kristian Rados DSA Practical 3 Work
+
 import java.util.*;
 public class DSAQueue
 {

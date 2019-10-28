@@ -1,14 +1,12 @@
+//Obtained from Kristian Rados DSA Practical 4 Work
+
 import java.util.*;
 import java.io.*;
-
-//TODO cite
-
-//TODO Does it need serializable?
-public class DSABinarySearchTree implements Serializable, Iterable
+public class DSABinarySearchTree implements Iterable
 {
     private DSATreeNode root;
 
-    private class DSATreeNode implements Serializable
+    private class DSATreeNode
     {
         private String key;
         private Object value;

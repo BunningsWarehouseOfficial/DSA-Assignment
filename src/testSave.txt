@@ -1,0 +1,22 @@
+Andy
+Bo Peep
+Hamm :
+Lenny
+Mr. PotatoHead
+Rex
+Slinky Dog
+Woody
+:Andy:Bo Peep
+Andy:Hamm
+Andy:Lenny
+Andy:Mr. PotatoHead
+Andy:Rex
+Andy:Slinky Dog
+Andy:Woody
+Bo Peep:Woody
+Hamm:Mr. PotatoHead
+Mr. PotatoHead:Hamm
+Woody:Bo Peep
+Woody:Lenny
+Woody:Rex
+Woody:Slinky Dog

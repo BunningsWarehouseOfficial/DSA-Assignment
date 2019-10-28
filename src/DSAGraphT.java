@@ -1,10 +1,11 @@
-import java.util.NoSuchElementException;
+/* Author: Kristian Rados (19764285)
+   Created: 23/10/2019
+   Last Modified: 28/10/2019                                                  */
 
-//TODO self-cite here (note that it is directed and simple (ie. not multigraph))
+//Adapted from Kristian Rados DSA Practical 5 Work
 
-//TODO getDegree if needed
-//TODO getHighestDegree if needed
-public class DSAGraphT
+import java.util.*;
+public class DSAGraphT //Directed and non-multi (single) graph
 {
     private class DSAGraphVertex
     {

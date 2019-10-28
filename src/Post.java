@@ -1,3 +1,7 @@
+/* Author: Kristian Rados (19764285)
+   Created: 23/10/2019
+   Last Modified: 28/10/2019                                                  */
+
 public class Post implements Comparable<Post>
 {
     private String poster;

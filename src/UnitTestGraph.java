@@ -1,8 +1,7 @@
+//Obtained from Kristian Rados DSA Practical 5 Work
+
 import java.util.NoSuchElementException;
-
-//TODO cite
-
-public class GraphTest
+public class UnitTestGraph
 {
     public static void main(String[] args)
     {

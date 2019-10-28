@@ -1,3 +1,7 @@
+/* Author: Kristian Rados (19764285)
+   Created: 23/10/2019
+   Last Modified: 28/10/2019                                                  */
+
 public class Person implements Comparable<Person>
 {
     private String name;
@@ -76,7 +80,6 @@ public class Person implements Comparable<Person>
     {
         justShared.enqueue(inPost);
     }
-    public void dequeueJustShared() { justShared.dequeue(); }
     public void addPost() { nPosts++; }
     public void addLike() { nLikes++; }
 
